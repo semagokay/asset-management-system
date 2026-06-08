@@ -365,7 +365,9 @@ const MOCK_USERS = [
   { id: '77777777', password: 'password', name: 'Zeynep Yılmaz', institutionalEmail: 'zeynep.yilmaz@istanbul.edu.tr', faculty: 'İşletme Fakültesi', role: 'dept', wallet: '' },
   { id: '88888888', password: 'password', name: 'Ahmet Koç', institutionalEmail: 'ahmet.koc@istanbul.edu.tr', faculty: 'İşletme Fakültesi', role: 'amo', wallet: '0x88889900aabbccddeeff00112233445566778899' },
   { id: '99999999', password: 'password', name: 'Prof. Dr. Elif Şahin', institutionalEmail: 'elif.sahin@istanbul.edu.tr', faculty: 'İktisat Fakültesi', role: 'dept', wallet: '0x9999888877776666555544443333222211110000' },
-  { id: '12121212', password: 'password', name: 'Fatma Yurt', institutionalEmail: 'fatma.yurt@istanbul.edu.tr', faculty: 'İktisat Fakültesi', role: 'amo', wallet: '0x1212121212121212121212121212121212121212' }
+  { id: '12121212', password: 'password', name: 'Fatma Yurt', institutionalEmail: 'fatma.yurt@istanbul.edu.tr', faculty: 'İktisat Fakültesi', role: 'amo', wallet: '0x1212121212121212121212121212121212121212' },
+  { id: '34343434', password: 'password', name: 'Murat Çelik', institutionalEmail: 'murat.celik@istanbul.edu.tr', faculty: 'Fen Fakültesi', role: 'amo', wallet: '0x3434343434343434343434343434343434343434' },
+  { id: '56565656', password: 'password', name: 'Leyla Aslan', institutionalEmail: 'leyla.aslan@istanbul.edu.tr', faculty: 'Tıp Fakültesi', role: 'amo', wallet: '0x5656565656565656565656565656565656565656' }
 ];
 
 const INITIAL_WALLETS = MOCK_USERS.reduce((acc, u) => {
@@ -636,18 +638,41 @@ export const AppStateProvider = ({ children }) => {
         .catch(() => setNetworkStatus('Sepolia Testnet'));
 
       // Check if accounts are already connected
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then(async (accounts) => {
-          if (accounts.length > 0) {
-            const activeAddress = accounts[0].toLowerCase();
-            setWalletConnected(true);
-            setWalletAddress(activeAddress);
-          }
-        })
-        .catch(err => console.error("Error fetching accounts:", err));
+      if (sessionStorage.getItem('walletDisconnectedByUser') === 'true') {
+        setWalletConnected(false);
+        setWalletAddress('');
+      } else {
+        window.ethereum.request({ method: 'eth_accounts' })
+          .then(async (accounts) => {
+            if (accounts.length > 0) {
+              const activeAddress = accounts[0].toLowerCase();
+              setWalletConnected(true);
+              setWalletAddress(activeAddress);
+              if (userProfile && userProfile.walletAddress !== activeAddress) {
+                setUserProfile(prev => ({
+                  ...prev,
+                  walletAddress: activeAddress
+                }));
+                setUserWallets(prev => ({
+                  ...prev,
+                  [userProfile.employeeId]: activeAddress
+                }));
+              }
+            } else {
+              setWalletConnected(false);
+              setWalletAddress('');
+            }
+          })
+          .catch(err => {
+            console.error("Error fetching accounts:", err);
+            setWalletConnected(false);
+            setWalletAddress('');
+          });
+      }
 
       const handleAccounts = (accounts) => {
         if (accounts.length > 0) {
+          sessionStorage.removeItem('walletDisconnectedByUser');
           const activeAddress = accounts[0].toLowerCase();
           setWalletConnected(true);
           setWalletAddress(activeAddress);
@@ -984,6 +1009,8 @@ export const AppStateProvider = ({ children }) => {
     
     const linkedAddress = userWallets[user.id] || '';
 
+    sessionStorage.removeItem('walletDisconnectedByUser');
+
     setUserProfile({
       fullName: user.name,
       employeeId: user.id,
@@ -993,14 +1020,6 @@ export const AppStateProvider = ({ children }) => {
       dept: user.faculty,
       walletAddress: linkedAddress
     });
-
-    if (linkedAddress) {
-      setWalletConnected(true);
-      setWalletAddress(linkedAddress);
-    } else {
-      setWalletConnected(false);
-      setWalletAddress('');
-    }
 
     showNotification(`Sisteme Giriş Başarılı! Hoş geldiniz, ${user.name}`, 'success');
     return true;
@@ -1037,6 +1056,7 @@ export const AppStateProvider = ({ children }) => {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       if (accounts.length > 0) {
         const address = accounts[0].toLowerCase();
+        sessionStorage.removeItem('walletDisconnectedByUser');
         setWalletConnected(true);
         setWalletAddress(address);
 
@@ -1064,6 +1084,7 @@ export const AppStateProvider = ({ children }) => {
   };
 
   const disconnectMetaMask = () => {
+    sessionStorage.setItem('walletDisconnectedByUser', 'true');
     if (userProfile) {
       setUserWallets(prev => {
         const next = { ...prev };

@@ -174,108 +174,122 @@ export default function ProfilePage() {
           </div>
 
           {/* Blockchain Wallet Card */}
-          <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ 
-                width: '32px', 
-                height: '32px', 
-                borderRadius: '8px', 
-                background: walletConnected ? '#f0fdf4' : '#fff7ed', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justify: 'center' 
-              }}>
-                <Wallet size={18} color={walletConnected ? '#22c55e' : '#f6851b'} />
+          {isAmo ? (
+            <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '8px', 
+                  background: walletConnected ? '#f0fdf4' : '#fff7ed', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justify: 'center' 
+                }}>
+                  <Wallet size={18} color={walletConnected ? '#22c55e' : '#f6851b'} />
+                </div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--secondary)' }}>
+                  Blokzincir Cüzdan Ayarları
+                </h4>
               </div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--secondary)' }}>
-                Blokzincir Cüzdan Ayarları
-              </h4>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Cüzdan Bağlantısı:</span>
-                {walletConnected ? (
-                  <span style={{ color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
-                    Bağlı (MetaMask)
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Cüzdan Bağlantısı:</span>
+                  {walletConnected ? (
+                    <span style={{ color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
+                      Bağlı (MetaMask)
+                    </span>
+                  ) : (
+                    <span style={{ color: '#e11d48', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
+                      Bağlı Değil
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Aktif Ağ:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{networkStatus}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Son Blokzincir Tescili:</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Clock size={14} style={{ opacity: 0.7 }} />
+                    {lastTxDate}
                   </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>İlişkilendirilmiş Cüzdan Adresi:</span>
+                  {userProfile.walletAddress ? (
+                    <span style={{ 
+                      fontFamily: 'monospace', 
+                      fontSize: '0.725rem', 
+                      background: '#f8fafc', 
+                      padding: '8px 10px', 
+                      borderRadius: '8px', 
+                      border: '1px solid var(--border)',
+                      wordBreak: 'break-all',
+                      color: 'var(--secondary)',
+                      fontWeight: 600
+                    }}>
+                      {userProfile.walletAddress}
+                    </span>
+                  ) : (
+                    <span style={{ 
+                      fontSize: '0.775rem', 
+                      color: '#e11d48', 
+                      background: '#fff1f2', 
+                      padding: '8px 10px', 
+                      borderRadius: '8px', 
+                      border: '1px solid #ffe4e6',
+                      textAlign: 'center',
+                      fontWeight: 500
+                    }}>
+                      Cüzdan ilişkilendirilmemiş. Blokzincir tescil onayı yapamazsınız.
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginTop: '4px' }}>
+                {walletConnected && userProfile.walletAddress ? (
+                  <button 
+                    type="button" 
+                    onClick={disconnectMetaMask}
+                    className="btn btn-secondary" 
+                    style={{ width: '100%', color: '#ef4444', borderColor: '#fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    Cüzdan Bağlantısını Kes
+                  </button>
                 ) : (
-                  <span style={{ color: '#e11d48', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>
-                    Bağlı Değil
-                  </span>
+                  <button 
+                    type="button" 
+                    onClick={connectMetaMask}
+                    className="btn btn-primary" 
+                    style={{ width: '100%', background: '#f6851b', borderColor: '#f6851b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    MetaMask Cüzdanı Bağla
+                  </button>
                 )}
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Aktif Ağ:</span>
-                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{networkStatus}</span>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Son Blokzincir Tescili:</span>
-                <span style={{ fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Clock size={14} style={{ opacity: 0.7 }} />
-                  {lastTxDate}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>İlişkilendirilmiş Cüzdan Adresi:</span>
-                {userProfile.walletAddress ? (
-                  <span style={{ 
-                    fontFamily: 'monospace', 
-                    fontSize: '0.725rem', 
-                    background: '#f8fafc', 
-                    padding: '8px 10px', 
-                    borderRadius: '8px', 
-                    border: '1px solid var(--border)',
-                    wordBreak: 'break-all',
-                    color: 'var(--secondary)',
-                    fontWeight: 600
-                  }}>
-                    {userProfile.walletAddress}
-                  </span>
-                ) : (
-                  <span style={{ 
-                    fontSize: '0.775rem', 
-                    color: '#e11d48', 
-                    background: '#fff1f2', 
-                    padding: '8px 10px', 
-                    borderRadius: '8px', 
-                    border: '1px solid #ffe4e6',
-                    textAlign: 'center',
-                    fontWeight: 500
-                  }}>
-                    Cüzdan ilişkilendirilmemiş. Blokzincir tescil onayı yapamazsınız.
-                  </span>
-                )}
-              </div>
             </div>
-
-            <div style={{ marginTop: '4px' }}>
-              {walletConnected && userProfile.walletAddress ? (
-                <button 
-                  type="button" 
-                  onClick={disconnectMetaMask}
-                  className="btn btn-secondary" 
-                  style={{ width: '100%', color: '#ef4444', borderColor: '#fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                >
-                  Cüzdan Bağlantısını Kes
-                </button>
-              ) : (
-                <button 
-                  type="button" 
-                  onClick={connectMetaMask}
-                  className="btn btn-primary" 
-                  style={{ width: '100%', background: '#f6851b', borderColor: '#f6851b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                >
-                  MetaMask Cüzdanı Bağla
-                </button>
-              )}
+          ) : (
+            <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Wallet size={18} color="var(--primary)" />
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--secondary)' }}>
+                  Blokzincir Yetkilendirmesi
+                </h4>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                Hesabınız <strong>Standart Çalışan</strong> statüsündedir. Demirbaş tescili veya zimmet onaylama yetkiniz bulunmadığından, bu hesap tipi için MetaMask cüzdan bağlantısı zorunlu değildir.
+              </p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Statistics & Activity Logs */}

@@ -13,7 +13,9 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
-  const { role, userProfile, disconnectWallet } = useAppState();
+  const { role, userProfile, disconnectWallet, requests, currentDept } = useAppState();
+
+  const pendingCount = requests ? requests.filter(r => r.ownerDept === currentDept && r.status === 'Pending').length : 0;
 
   return (
     <aside className="sidebar-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -22,7 +24,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           <Link2 size={18} />
         </div>
         <div>
-          <h1>Ayniyat Share</h1>
+          <h1>Ayniyat Yönetimi</h1>
           <span style={{ fontSize: '0.65rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
             Demirbaş Yönetim Portalı
           </span>
@@ -35,14 +37,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             <div className="sidebar-section-header">
               DEPARTMAN KULLANICISI
             </div>
-            
-            <button 
-              className={`sidebar-link ${activeTab === 'dept-dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dept-dashboard')}
-            >
-              <LayoutDashboard size={18} />
-              <span>Bölüm Paneli</span>
-            </button>
 
             <button 
               className={`sidebar-link ${activeTab === 'my-assets' ? 'active' : ''}`}
@@ -95,9 +89,26 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             <button 
               className={`sidebar-link ${activeTab === 'amo-requests' ? 'active' : ''}`}
               onClick={() => setActiveTab('amo-requests')}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
             >
-              <CheckSquare size={18} />
-              <span>Talep Yönetimi</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckSquare size={18} />
+                <span>Talep Yönetimi</span>
+              </div>
+              {pendingCount > 0 && (
+                <span style={{ 
+                  background: '#ef4444', 
+                  color: '#ffffff', 
+                  fontSize: '0.7rem', 
+                  fontWeight: 'bold', 
+                  padding: '2px 6px', 
+                  borderRadius: '10px',
+                  minWidth: '18px',
+                  textAlign: 'center'
+                }}>
+                  {pendingCount}
+                </span>
+              )}
             </button>
 
             <button 
